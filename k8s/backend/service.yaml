@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: subfinder-backend
+  labels:
+    app: subfinder
+    component: backend
+spec:
+  selector:
+    app: subfinder
+    component: backend
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http
+  type: ClusterIP

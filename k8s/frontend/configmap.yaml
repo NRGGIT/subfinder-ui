@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: subfinder-frontend-config
+  labels:
+    app: subfinder
+    component: frontend
+data:
+  BACKEND_URL: "http://subfinder-backend:8080"

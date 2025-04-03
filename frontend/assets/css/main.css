@@ -1,0 +1,192 @@
+:root {
+  /* ACV Light Theme */
+  --acv-color-glyph-primary: #111;
+  --acv-color-glyph-secondary: #777;
+  --acv-color-glyph-tertiary: #bbb;
+  --acv-color-glyph-brand: #19213a;
+  --acv-color-glyph-inverted: #fff;
+  --acv-color-surface-primary: #fff;
+  --acv-color-surface-secondary: #f9f9f9;
+  --acv-color-surface-tertiary: #e8eced;
+  --acv-color-surface-brand: #19213a;
+  --acv-color-surface-inverted: #0a0a0a;
+  --acv-color-border-primary: #dddee1;
+  --acv-color-border-secondary: #e8e9eb;
+  --acv-color-state-action-primary: #0d2145;
+  --acv-color-action-primary: #0d2145;
+  --acv-color-state-action-secondary: #e8eced;
+  --acv-color-action-secondary: #e8eced;
+  --acv-color-state-action-tertiary: #fff;
+  --acv-color-action-tertiary: #fff;
+  --acv-color-state-action-brand: #db4f3d;
+  --acv-color-state-action-inverted: #fff;
+  --acv-color-state-hover-primary: #0f152a;
+  --acv-color-state-hover-secondary: #cfd3d4;
+  --acv-color-state-hover-tertiary: #f1f1f1;
+  --acv-color-state-hover-inverted: #f1f1f1;
+  --acv-color-state-active-primary: #d1d5dc;
+  --acv-color-state-active-secondary: #e7ecf1;
+  --acv-color-state-active-inverted: #fff;
+  --acv-color-state-disabled-primary: #f0f0f0;
+  --acv-color-state-disabled-secondary: #f1f1f1;
+  --acv-color-state-disabled-inverted: #fff;
+  --acv-color-state-focus-primary: #008ce3;
+  --acv-color-status-success-light: #e2f5dd;
+  --acv-color-status-success-medium: #39b437;
+  --acv-color-status-success-strong: #358730;
+  --acv-color-status-danger-light: #ffe9e5;
+  --acv-color-status-danger-medium: #ff7065;
+  --acv-color-status-danger-strong: #d40834;
+  --acv-color-status-warning-light: #fff4c0;
+  --acv-color-status-warning-medium: #d89000;
+  --acv-color-status-warning-strong: #b65f00;
+  --acv-color-status-info-light: #eceefe;
+  --acv-color-status-info-medium: #7498f8;
+  --acv-color-status-info-strong: #3d73d8;
+  --acv-color-decoration-white: #fff;
+  --acv-color-decoration-black: #141414;
+  --acv-color-decoration-orange-10: #ffeadb;
+  --acv-color-decoration-orange-40: #fe781b;
+  --acv-color-decoration-orange-60: #d63d00;
+  --acv-color-decoration-orange-70: #9a3316;
+  --acv-color-decoration-blue-10: #eceefe;
+  --acv-color-decoration-blue-40: #7498f8;
+  --acv-color-decoration-blue-60: #3d73d8;
+  --acv-color-decoration-blue-70: #37569c;
+  --acv-color-decoration-mint-10: #dff6ee;
+  --acv-color-decoration-mint-40: #0fbd83;
+  --acv-color-decoration-mint-60: #228665;
+  --acv-color-decoration-mint-70: #266952;
+  --acv-color-decoration-brown-10: #f3ebe2;
+  --acv-color-decoration-brown-40: #c5957a;
+  --acv-color-decoration-brown-60: #9c6a4f;
+  --acv-color-decoration-brown-70: #7e523b;
+  --acv-color-decoration-grey-10: #efefef;
+  --acv-color-decoration-grey-40: #9b9b9b;
+  --acv-color-decoration-grey-60: #686867;
+  --acv-color-decoration-grey-70: #535353;
+  --acv-color-decoration-pink-10: #ffeaf2;
+  --acv-color-decoration-pink-40: #ff6ca0;
+  --acv-color-decoration-pink-60: #df2868;
+  --acv-color-decoration-pink-70: #982f54;
+  --acv-color-decoration-turquoise-10: #e0f3f6;
+  --acv-color-decoration-turquoise-40: #0fadbf;
+  --acv-color-decoration-turquoise-60: #24828f;
+  --acv-color-decoration-turquoise-70: #266068;
+  --acv-color-decoration-purple-10: #f8eaff;
+  --acv-color-decoration-purple-40: #d07aff;
+  --acv-color-decoration-purple-60: #b327ff;
+  --acv-color-decoration-purple-70: #841dba;
+  --acv-color-decoration-magenta-10: #f1eafe;
+  --acv-color-decoration-magenta-40: #a377f8;
+  --acv-color-decoration-magenta-60: #6e3dd8;
+  --acv-color-decoration-magenta-70: #5a379c;
+  --acv-color-decoration-red-10: #ffe9e5;
+  --acv-color-decoration-red-40: #ff7065;
+  --acv-color-decoration-red-60: #d40834;
+  --acv-color-decoration-red-70: #962f3d;
+  --acv-color-decoration-yellow-10: #fff4c0;
+  --acv-color-decoration-yellow-40: #d89000;
+  --acv-color-decoration-yellow-60: #b65f00;
+  --acv-color-decoration-yellow-70: #923c03;
+  --acv-color-decoration-green-10: #e2f5dd;
+  --acv-color-decoration-green-40: #39b437;
+  --acv-color-decoration-green-60: #358730;
+  --acv-color-decoration-green-70: #2d5e28;
+  --acv-color-nav-primary: #19213a;
+  --acv-color-nav-secondary: #fff;
+  --acv-color-nav-tertiary: rgba(255, 255, 255, 0.55);
+  --acv-color-nav-button: #30374e;
+  --acv-color-nav-hover: #0f152a;
+  --acv-color-nav-active: #343e5f;
+  --acv-color-overlay-primary: rgba(10, 10, 10, 0.5);
+  --acv-color-overlay-secondary: rgba(255, 255, 255, 0.5);
+  --acv-color-overlay-highlight: #4bbbf0;
+  --acv-color-shadows-surface: rgba(0, 0, 0, 0.25);
+  --acv-color-shadows-overlay: rgba(0, 0, 0, 0.15);
+  --acv-color-fixed-black: #0a0a0a;
+  --acv-color-fixed-white: #fff;
+  --acv-color-technical-thumb: #cfcfcf;
+  --acv-color-technical-thumb-inverted: #fff;
+
+  /* Map ACV colors to UI variables */
+  --ui-primary: var(--acv-color-action-primary);
+  --ui-primary-hover: var(--acv-color-state-hover-primary);
+  --ui-primary-active: var(--acv-color-state-active-primary);
+  
+  --ui-secondary: var(--acv-color-action-secondary);
+  --ui-secondary-hover: var(--acv-color-state-hover-secondary);
+  --ui-secondary-active: var(--acv-color-state-active-secondary);
+  
+  --ui-success: var(--acv-color-status-success-medium);
+  --ui-success-light: var(--acv-color-status-success-light);
+  --ui-success-dark: var(--acv-color-status-success-strong);
+  
+  --ui-info: var(--acv-color-status-info-medium);
+  --ui-info-light: var(--acv-color-status-info-light);
+  --ui-info-dark: var(--acv-color-status-info-strong);
+  
+  --ui-warning: var(--acv-color-status-warning-medium);
+  --ui-warning-light: var(--acv-color-status-warning-light);
+  --ui-warning-dark: var(--acv-color-status-warning-strong);
+  
+  --ui-danger: var(--acv-color-status-danger-medium);
+  --ui-danger-light: var(--acv-color-status-danger-light);
+  --ui-danger-dark: var(--acv-color-status-danger-strong);
+  
+  --ui-background: var(--acv-color-surface-primary);
+  --ui-background-subtle: var(--acv-color-surface-secondary);
+  --ui-background-muted: var(--acv-color-surface-tertiary);
+  
+  --ui-border: var(--acv-color-border-primary);
+  --ui-border-hover: var(--acv-color-border-secondary);
+  
+  --ui-text: var(--acv-color-glyph-primary);
+  --ui-text-subtle: var(--acv-color-glyph-secondary);
+  --ui-text-muted: var(--acv-color-glyph-tertiary);
+  
+  --ui-focus-ring: var(--acv-color-state-focus-primary);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--acv-color-surface-primary);
+  color: var(--acv-color-glyph-primary);
+}
+
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.brand-header {
+  background-color: var(--acv-color-surface-brand);
+  color: var(--acv-color-glyph-inverted);
+}
+
+.status-badge {
+  text-transform: capitalize;
+}
+
+.status-badge.queued {
+  background-color: var(--acv-color-status-info-light);
+  color: var(--acv-color-status-info-strong);
+}
+
+.status-badge.running {
+  background-color: var(--acv-color-status-warning-light);
+  color: var(--acv-color-status-warning-strong);
+}
+
+.status-badge.completed {
+  background-color: var(--acv-color-status-success-light);
+  color: var(--acv-color-status-success-strong);
+}
+
+.status-badge.failed {
+  background-color: var(--acv-color-status-danger-light);
+  color: var(--acv-color-status-danger-strong);
+}

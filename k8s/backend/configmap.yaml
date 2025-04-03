@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: subfinder-backend-config
+  labels:
+    app: subfinder
+    component: backend
+data:
+  PORT: "8080"
+  WORKER_COUNT: "5"

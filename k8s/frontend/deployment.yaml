@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: subfinder-frontend
+  labels:
+    app: subfinder
+    component: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: subfinder
+      component: frontend
+  template:
+    metadata:
+      labels:
+        app: subfinder
+        component: frontend
+    spec:
+      containers:
+      - name: subfinder-frontend
+        image: ${FRONTEND_IMAGE:-subfinder-frontend:latest}
+        ports:
+        - containerPort: 3000
+        env:
+        - name: HOST
+          value: "0.0.0.0"
+        - name: PORT
+          value: "3000"
+        - name: NUXT_PUBLIC_API_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: subfinder-frontend-config
+              key: BACKEND_URL
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "256Mi"
+          requests:
+            cpu: "0.2"
+            memory: "128Mi"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 10

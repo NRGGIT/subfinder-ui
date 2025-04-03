@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: subfinder-frontend
+  labels:
+    app: subfinder
+    component: frontend
+spec:
+  selector:
+    app: subfinder
+    component: frontend
+  ports:
+  - port: 80
+    targetPort: 3000
+    name: http
+  type: ClusterIP
