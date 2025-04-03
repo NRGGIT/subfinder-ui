@@ -71,7 +71,7 @@
         </UFormGroup>
         
         <!-- Boolean Options -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <UFormGroup name="includeIPs">
             <UCheckbox v-model="formState.config.includeIPs" label="Include IP Addresses" />
           </UFormGroup>
@@ -82,6 +82,10 @@
           
           <UFormGroup name="excludeUnresolvable">
             <UCheckbox v-model="formState.config.excludeUnresolvable" label="Exclude Unresolvable" />
+          </UFormGroup>
+          
+          <UFormGroup name="excludeWww">
+            <UCheckbox v-model="formState.config.excludeWww" label="Exclude WWW Subdomains" />
           </UFormGroup>
         </div>
         
@@ -151,7 +155,8 @@ const formState = reactive({
     timeout: 60,
     rateLimit: 10,
     includeWildcards: false,
-    excludeUnresolvable: false
+    excludeUnresolvable: false,
+    excludeWww: false
   }
 })
 
@@ -195,7 +200,8 @@ async function onSubmit() {
         timeout: formState.config.timeout,
         rate_limit: formState.config.rateLimit,
         include_wildcards: formState.config.includeWildcards,
-        exclude_unresolvable: formState.config.excludeUnresolvable
+        exclude_unresolvable: formState.config.excludeUnresolvable,
+        exclude_www: formState.config.excludeWww
       }
     }
     

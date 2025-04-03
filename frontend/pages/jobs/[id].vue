@@ -130,6 +130,13 @@
             </UBadge>
           </div>
           
+          <div>
+            <h4 class="text-sm font-medium text-gray-500 mb-1">Exclude WWW Subdomains</h4>
+            <UBadge :color="job.config.exclude_www ? 'green' : 'gray'" size="sm">
+              {{ job.config.exclude_www ? 'Yes' : 'No' }}
+            </UBadge>
+          </div>
+          
           <div class="md:col-span-3">
             <h4 class="text-sm font-medium text-gray-500 mb-1">Sources</h4>
             <div class="flex flex-wrap gap-2">
