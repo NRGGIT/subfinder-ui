@@ -27,6 +27,16 @@
                 Status
               </span>
             </NuxtLink>
+            <NuxtLink 
+              to="/api-docs" 
+              class="text-white hover:text-gray-200 px-3 py-2 rounded-md transition-colors"
+              :class="{ 'bg-acv-color-nav-active': $route.path === '/api-docs' }"
+            >
+              <span class="flex items-center">
+                <UIcon name="i-lucide-code" class="mr-2" />
+                API Docs
+              </span>
+            </NuxtLink>
           </nav>
         </div>
       </header>
