@@ -257,10 +257,10 @@ const endpoints = [
         started_at: '2025-04-04T10:00:05Z',
         completed_at: '2025-04-04T10:02:30Z',
         subdomains: [
-          'api.example.com',
-          'blog.example.com',
-          'mail.example.com',
-          'dev.example.com'
+          { subdomain: 'api.example.com', ip: '192.168.1.10', source: 'virustotal' },
+          { subdomain: 'blog.example.com', ip: '192.168.1.11', source: 'crtsh' },
+          { subdomain: 'mail.example.com', ip: '192.168.1.12', source: 'dnsdumpster' },
+          { subdomain: 'dev.example.com', ip: '192.168.1.13', source: 'virustotal' }
         ],
         stats: {
           total_found: 4,
@@ -277,7 +277,10 @@ const endpoints = [
         { name: 'started_at', type: 'string', description: 'Time when the job was started (ISO 8601 format)', required: false },
         { name: 'completed_at', type: 'string', description: 'Time when the job was completed (ISO 8601 format)', required: false },
         { name: 'error', type: 'string', description: 'Error message if the job failed', required: false },
-        { name: 'subdomains', type: 'array', description: 'List of subdomains found', required: false },
+        { name: 'subdomains', type: 'array', description: 'List of subdomain objects found', required: false },
+        { name: 'subdomains[].subdomain', type: 'string', description: 'The found subdomain name', required: true },
+        { name: 'subdomains[].ip', type: 'string', description: 'IP address of the subdomain (only present if config.include_ips is true)', required: false },
+        { name: 'subdomains[].source', type: 'string', description: 'Source where the subdomain was found', required: true },
         { name: 'stats', type: 'object', description: 'Statistics about the job', required: false },
         { name: 'stats.total_found', type: 'number', description: 'Total number of subdomains found', required: false },
         { name: 'stats.execution_time', type: 'string', description: 'Time taken to execute the job', required: false },
@@ -304,10 +307,10 @@ const endpoints = [
   "started_at": "2025-04-04T10:00:05Z",
   "completed_at": "2025-04-04T10:02:30Z",
   "subdomains": [
-    "api.example.com",
-    "blog.example.com",
-    "mail.example.com",
-    "dev.example.com"
+    { "subdomain": "api.example.com", "ip": "192.168.1.10", "source": "virustotal" },
+    { "subdomain": "blog.example.com", "ip": "192.168.1.11", "source": "crtsh" },
+    { "subdomain": "mail.example.com", "ip": "192.168.1.12", "source": "dnsdumpster" },
+    { "subdomain": "dev.example.com", "ip": "192.168.1.13", "source": "virustotal" }
   ],
   "stats": {
     "total_found": 4,

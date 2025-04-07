@@ -72,20 +72,27 @@ type Job struct {
 	Error string `json:"error,omitempty"`
 	
 	// List of subdomains found
-	Subdomains []string `json:"subdomains,omitempty"`
-	
+	Subdomains []SubdomainInfo `json:"subdomains,omitempty"`
+
 	// Statistics about the job
 	Stats *JobStats `json:"stats,omitempty"`
+}
+
+// SubdomainInfo represents a single found subdomain with its details
+type SubdomainInfo struct {
+	Subdomain string `json:"subdomain"`
+	IP        string `json:"ip,omitempty"` // Included only if config.include_ips is true
+	Source    string `json:"source"`
 }
 
 // JobStats represents statistics about a job
 type JobStats struct {
 	// Total number of subdomains found
 	TotalFound int `json:"total_found"`
-	
+
 	// Time taken to execute the job
 	ExecutionTime string `json:"execution_time"`
-	
+
 	// Sources used to find subdomains
 	SourcesUsed []string `json:"sources_used"`
 }

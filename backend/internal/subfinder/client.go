@@ -23,7 +23,7 @@ func NewClient(logger *log.Logger) *Client {
 }
 
 // FindSubdomains finds subdomains for the specified domain using subfinder
-func (c *Client) FindSubdomains(ctx context.Context, domain string, config models.SubfinderConfig) ([]string, []string, error) {
+func (c *Client) FindSubdomains(ctx context.Context, domain string, config models.SubfinderConfig) ([]models.SubdomainInfo, []string, error) {
 	c.logger.Printf("Finding subdomains for domain %s", domain)
 
 	// Build the command
@@ -83,41 +83,70 @@ func (c *Client) FindSubdomains(ctx context.Context, domain string, config model
 		return nil, nil, fmt.Errorf("failed to run subfinder: %v, output: %s", err, string(output))
 	}
 
-	// Parse the output
-	subdomains := parseSubfinderOutput(string(output))
+	// Parse the output into structured data
+	subdomainInfos := parseSubfinderOutput(string(output), config.IncludeIPs)
 
 	// Apply depth filtering if maxDepth is set
 	if config.MaxDepth > 0 {
 		c.logger.Printf("Filtering subdomains by depth: %d", config.MaxDepth)
-		subdomains = filterSubdomainsByDepth(subdomains, domain, config.MaxDepth)
+		subdomainInfos = filterSubdomainsByDepth(subdomainInfos, domain, config.MaxDepth)
 	}
 
 	// Apply www filtering if excludeWww is set
 	if config.ExcludeWww {
 		c.logger.Printf("Filtering out www subdomains")
-		subdomains = filterWwwSubdomains(subdomains, true)
+		subdomainInfos = filterWwwSubdomains(subdomainInfos, true)
 	}
 
 	// For now, we don't have a way to get the sources used from the CLI output
 	// In a real implementation, we would use the subfinder library directly
 	sourcesUsed := []string{"all"}
 
-	c.logger.Printf("Found %d subdomains after filtering", len(subdomains))
-	return subdomains, sourcesUsed, nil
+	c.logger.Printf("Found %d subdomains after filtering", len(subdomainInfos))
+	return subdomainInfos, sourcesUsed, nil
 }
 
-// parseSubfinderOutput parses the output of subfinder
-func parseSubfinderOutput(output string) []string {
+// parseSubfinderOutput parses the output of subfinder into SubdomainInfo structs
+func parseSubfinderOutput(output string, includeIPs bool) []models.SubdomainInfo {
 	lines := strings.Split(strings.TrimSpace(output), "\n")
-	var subdomains []string
+	var results []models.SubdomainInfo
 
 	for _, line := range lines {
-		if line != "" {
-			subdomains = append(subdomains, line)
+		if line == "" {
+			continue
 		}
+
+		parts := strings.Split(line, ",")
+		info := models.SubdomainInfo{}
+
+		if len(parts) == 0 {
+			continue // Skip empty lines after split
+		}
+
+		info.Subdomain = parts[0]
+
+		if includeIPs {
+			// Expect format: subdomain,ip[,source]
+			if len(parts) > 1 {
+				info.IP = parts[1]
+			}
+			if len(parts) > 2 {
+				info.Source = parts[2]
+			} else {
+				info.Source = "unknown" // Default if source is missing but IP is present
+			}
+		} else {
+			// Expect format: subdomain[,source]
+			if len(parts) > 1 {
+				info.Source = parts[1]
+			} else {
+				info.Source = "unknown" // Default if source is missing and no IP expected
+			}
+		}
+		results = append(results, info)
 	}
 
-	return subdomains
+	return results
 }
 
 // countDomainLevels counts the number of levels in a domain
@@ -129,37 +158,37 @@ func countDomainLevels(domain string) int {
 // filterSubdomainsByDepth filters subdomains based on the max depth
 // baseDomain is the original domain (e.g., "example.com")
 // maxDepth is the maximum depth level (e.g., 1 would include only direct subdomains)
-func filterSubdomainsByDepth(subdomains []string, baseDomain string, maxDepth int) []string {
+func filterSubdomainsByDepth(subdomains []models.SubdomainInfo, baseDomain string, maxDepth int) []models.SubdomainInfo {
 	if maxDepth <= 0 {
 		return subdomains // No filtering if maxDepth is not set
 	}
-	
+
 	baseLevels := countDomainLevels(baseDomain)
 	maxLevels := baseLevels + maxDepth
-	
-	var filtered []string
-	for _, subdomain := range subdomains {
-		if countDomainLevels(subdomain) <= maxLevels {
-			filtered = append(filtered, subdomain)
+
+	var filtered []models.SubdomainInfo
+	for _, info := range subdomains {
+		if countDomainLevels(info.Subdomain) <= maxLevels {
+			filtered = append(filtered, info)
 		}
 	}
-	
+
 	return filtered
 }
 
 // filterWwwSubdomains filters out www subdomains based on the configuration
-func filterWwwSubdomains(subdomains []string, excludeWww bool) []string {
+func filterWwwSubdomains(subdomains []models.SubdomainInfo, excludeWww bool) []models.SubdomainInfo {
 	if !excludeWww {
 		return subdomains // No filtering if excludeWww is false
 	}
-	
-	var filtered []string
-	for _, subdomain := range subdomains {
-		if !strings.HasPrefix(subdomain, "www.") {
-			filtered = append(filtered, subdomain)
+
+	var filtered []models.SubdomainInfo
+	for _, info := range subdomains {
+		if !strings.HasPrefix(info.Subdomain, "www.") {
+			filtered = append(filtered, info)
 		}
 	}
-	
+
 	return filtered
 }
 

@@ -202,16 +202,20 @@
                   <tr>
                     <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">#</th>
                     <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Subdomain</th>
+                    <th v-if="job?.config?.include_ips" class="px-4 py-2 text-left text-sm font-medium text-gray-500">IP Address</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-500">Source</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y">
                   <tr
-                    v-for="(subdomain, index) in filteredSubdomains"
-                    :key="index"
+                    v-for="(result, index) in filteredSubdomains"
+                    :key="result.subdomain + '-' + index"
                     class="hover:bg-gray-50"
                   >
                     <td class="px-4 py-2 text-sm text-gray-500">{{ index + 1 }}</td>
-                    <td class="px-4 py-2 font-mono">{{ subdomain }}</td>
+                    <td class="px-4 py-2 font-mono">{{ result.subdomain }}</td>
+                    <td v-if="job?.config?.include_ips" class="px-4 py-2 font-mono">{{ result.ip || 'N/A' }}</td>
+                    <td class="px-4 py-2 text-sm">{{ result.source }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -282,13 +286,18 @@ const breadcrumbItems = computed(() => [
 ])
 
 const filteredSubdomains = computed(() => {
-  if (!job.value?.subdomains || !searchQuery.value) {
-    return job.value?.subdomains || []
+  if (!job.value?.subdomains) {
+    return []
+  }
+  if (!searchQuery.value) {
+    return job.value.subdomains
   }
   
   const query = searchQuery.value.toLowerCase()
-  return job.value.subdomains.filter(subdomain => 
-    subdomain.toLowerCase().includes(query)
+  return job.value.subdomains.filter(result =>
+    result.subdomain.toLowerCase().includes(query) ||
+    (result.ip && result.ip.toLowerCase().includes(query)) ||
+    result.source.toLowerCase().includes(query)
   )
 })
 
@@ -314,13 +323,32 @@ function formatDate(dateString) {
 function downloadResults() {
   if (!job.value?.subdomains) return
   
-  const content = job.value.subdomains.join('\n')
-  const blob = new Blob([content], { type: 'text/plain' })
+  // Format as CSV
+  const headers = ['Subdomain']
+  if (job.value.config.include_ips) {
+    headers.push('IP Address')
+  }
+  headers.push('Source')
+  
+  const csvContent = [
+    headers.join(','),
+    ...job.value.subdomains.map(result => {
+      const row = [result.subdomain]
+      if (job.value.config.include_ips) {
+        row.push(result.ip || '') // Add IP if included, else empty string
+      }
+      row.push(result.source)
+      // Escape commas within fields if necessary (basic example)
+      return row.map(field => `"${field.replace(/"/g, '""')}"`).join(',')
+    })
+  ].join('\n')
+  
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   
   const a = document.createElement('a')
   a.href = url
-  a.download = `subdomains-${job.value.domain}-${job.value.job_id}.txt`
+  a.download = `subdomains-${job.value.domain}-${job.value.job_id}.csv` // Change extension to .csv
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)
