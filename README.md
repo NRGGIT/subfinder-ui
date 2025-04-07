@@ -1,6 +1,6 @@
 # Subfinder Service
 
-[subfinder-ui](https://github.com/NRGGIT/subfinder-ui.git)
+`https://github.com/NRGGIT/subfinder-ui.git`
 
 A Docker service that provides a REST API for the [subfinder](https://github.com/projectdiscovery/subfinder) subdomain enumeration tool.
 
