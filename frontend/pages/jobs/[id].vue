@@ -74,13 +74,19 @@
           </div>
         </template>
         
-        <template v-if="job.error">
+        <template v-if="job.errorDetails">
           <div class="mt-6 p-4 bg-red-50 text-red-700 rounded-md">
             <div class="flex items-start">
               <UIcon name="i-lucide-alert-circle" class="mr-2 text-red-500 mt-0.5" />
               <div>
                 <h4 class="font-medium">Error</h4>
-                <p>{{ job.error }}</p>
+                <p class="font-bold">{{ job.errorDetails.message }}</p>
+                <p v-if="job.errorDetails.type">
+                  <span class="font-medium">Type:</span> {{ job.errorDetails.type }}
+                </p>
+                <p v-if="job.errorDetails.stack_trace" class="font-mono text-sm whitespace-pre-wrap">
+                  <span class="font-medium">Stack Trace:</span> {{ job.errorDetails.stack_trace }}
+                </p>
               </div>
             </div>
           </div>

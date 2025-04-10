@@ -68,8 +68,8 @@ type Job struct {
 	// Estimated time when the job will be completed
 	EstimatedCompletionTime *time.Time `json:"estimated_completion_time,omitempty"`
 	
-	// Error message if the job failed
-	Error string `json:"error,omitempty"`
+	// Error details if the job failed
+	ErrorDetails *ErrorDetails `json:"error,omitempty"`
 	
 	// List of subdomains found
 	Subdomains []SubdomainInfo `json:"subdomains,omitempty"`
@@ -77,6 +77,14 @@ type Job struct {
 	// Statistics about the job
 	Stats *JobStats `json:"stats,omitempty"`
 }
+
+// ErrorDetails represents detailed error information for a job
+type ErrorDetails struct {
+	Message    string `json:"message"`
+	Type       string `json:"type"`
+	StackTrace string `json:"stack_trace"`
+}
+
 
 // SubdomainInfo represents a single found subdomain with its details
 type SubdomainInfo struct {

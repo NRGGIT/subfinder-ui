@@ -114,10 +114,17 @@ func (p *WorkerPool) processJob(ctx context.Context, job *models.Job) {
 
 	if err != nil {
 		job.Status = models.JobStatusFailed
-		job.Error = err.Error()
+		job.ErrorDetails = &models.ErrorDetails{
+			Message:    err.Error(),
+			Type:       "SubfinderError",
+			StackTrace: err.Error(),
+		}
 		p.logger.Printf("Job %s failed: %v", job.ID, err)
 	} else {
 		job.Status = models.JobStatusCompleted
+
+		// Clear any previous error details
+		job.ErrorDetails = nil
 		job.Subdomains = subdomains
 		job.Stats = &models.JobStats{
 			TotalFound:    len(subdomains),
