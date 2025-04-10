@@ -7,11 +7,19 @@ export default defineNuxtConfig({
     icons: ['lucide']
   },
   app: {
-    head: {
-      title: 'Subfinder UI',
-      meta: [
-        { name: 'description', content: 'UI for Subfinder subdomain enumeration tool' }
-      ]
+    head: {      
+      htmlAttributes: {
+        'data-theme': 'light', // Default to light mode
+        style: '@media (prefers-color-scheme: dark) { html { color-scheme: dark; } }'
+      },
+      link: [
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap'
+        }
+      ],
+      meta: [{ name: 'description', content: 'UI for Subfinder subdomain enumeration tool' }],
+      title: 'Subfinder UI'
     }
   },
   runtimeConfig: {

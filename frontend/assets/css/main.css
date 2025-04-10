@@ -109,6 +109,27 @@
   --acv-color-technical-thumb: #cfcfcf;
   --acv-color-technical-thumb-inverted: #fff;
 
+  /* Dark Theme Variables */
+  --ui-dark-background: #121212;
+  --ui-dark-background-subtle: #1e1e1e;
+  --ui-dark-background-muted: #2c2c2c;
+  --ui-dark-border: #333333;
+  --ui-dark-border-hover: #444444;
+  --ui-dark-text: #e0e0e0;
+  --ui-dark-text-subtle: #b0b0b0;
+  --ui-dark-text-muted: #777777;
+  --ui-dark-focus-ring: #4a90e2;
+
+  /* Dark Theme Status Colors */
+  --ui-dark-info-light: #2d3d5a;
+  --ui-dark-info-dark: #7498f8;
+  --ui-dark-warning-light: #5a4e2d;
+  --ui-dark-warning-dark: #d89000;
+  --ui-dark-success-light: #2d5a3a;
+  --ui-dark-success-dark: #39b437;
+  --ui-dark-danger-light: #5a2d31;
+  --ui-dark-danger-dark: #ff7065;
+
   /* Map ACV colors to UI variables */
   --ui-primary: var(--acv-color-action-primary);
   --ui-primary-hover: var(--acv-color-state-hover-primary);
@@ -148,6 +169,35 @@
   --ui-focus-ring: var(--acv-color-state-focus-primary);
 }
 
+html[data-theme='dark'] {
+  --ui-background: var(--ui-dark-background);
+  --ui-background-subtle: var(--ui-dark-background-subtle);
+  --ui-background-muted: var(--ui-dark-background-muted);
+  
+  --ui-border: var(--ui-dark-border);
+  --ui-border-hover: var(--ui-dark-border-hover);
+  
+  --ui-text: var(--ui-dark-text);
+  --ui-text-subtle: var(--ui-dark-text-subtle);
+  --ui-text-muted: var(--ui-dark-text-muted);
+  
+  --ui-focus-ring: var(--ui-dark-focus-ring);
+
+  /* Status Colors */
+  --ui-info-light: var(--ui-dark-info-light);
+  --ui-info-dark: var(--ui-dark-info-dark);
+  
+  --ui-warning-light: var(--ui-dark-warning-light);
+  --ui-warning-dark: var(--ui-dark-warning-dark);
+  
+  --ui-success-light: var(--ui-dark-success-light);
+  --ui-success-dark: var(--ui-dark-success-dark);
+  
+  --ui-danger-light: var(--ui-dark-danger-light);
+  --ui-danger-dark: var(--ui-dark-danger-dark);
+
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -162,9 +212,13 @@ body {
   padding: 1rem;
 }
 
-.brand-header {
-  background-color: var(--acv-color-surface-brand);
-  color: var(--acv-color-glyph-inverted);
+.brand-header { /*  This was originally setting a light blue color, now making it dark-mode aware */
+  background-color: var(--ui-primary); /* Changed this line */
+  color: var(--acv-color-glyph-inverted); 
+}
+
+html[data-theme='dark'] .brand-header {
+  background-color: var(--ui-dark-background-muted);
 }
 
 .status-badge {
