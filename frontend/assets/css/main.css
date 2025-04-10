@@ -170,6 +170,14 @@
 }
 
 html[data-theme='dark'] {
+  body {
+    background-color: var(--ui-background);
+  }
+  
+  form {
+    background-color: var(--ui-background-subtle);
+  }
+
   --ui-background: var(--ui-dark-background);
   --ui-background-subtle: var(--ui-dark-background-subtle);
   --ui-background-muted: var(--ui-dark-background-muted);
@@ -243,4 +251,8 @@ html[data-theme='dark'] .brand-header {
 .status-badge.failed {
   background-color: var(--acv-color-status-danger-light);
   color: var(--acv-color-status-danger-strong);
+}
+
+p {
+  color: var(--ui-text);
 }

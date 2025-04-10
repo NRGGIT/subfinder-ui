@@ -114,12 +114,14 @@ func (p *WorkerPool) processJob(ctx context.Context, job *models.Job) {
 
 	if err != nil {
 		job.Status = models.JobStatusFailed
+		// In Go, errors don't inherently have stack traces. Here, we're capturing the error message as a stand-in.
+		// For a more robust solution, consider using a library like "github.com/pkg/errors" to wrap errors and preserve stack traces.
 		job.ErrorDetails = &models.ErrorDetails{
 			Message:    err.Error(),
 			Type:       "SubfinderError",
 			StackTrace: err.Error(),
 		}
-		p.logger.Printf("Job %s failed: %v", job.ID, err)
+		p.logger.Printf("Job %s failed: %s", job.ID, err.Error())
 	} else {
 		job.Status = models.JobStatusCompleted
 
