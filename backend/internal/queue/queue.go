@@ -3,7 +3,7 @@ package queue
 import (
 	"sync"
 
-	"github.com/user/subfinder-service/pkg/models"
+	"github.com/user/subfinder-service/backend/pkg/models"
 )
 
 // JobQueue represents a queue of jobs to be processed

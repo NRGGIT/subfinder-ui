@@ -5,13 +5,16 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"os/signal"
+	"runtime"
+	"strings"
 	"syscall"
 	"time"
 
-	"github.com/user/subfinder-service/internal/api"
-	"github.com/user/subfinder-service/internal/queue"
-	"github.com/user/subfinder-service/internal/worker"
+	"github.com/user/subfinder-service/backend/internal/api"
+	"github.com/user/subfinder-service/backend/internal/queue"
+	"github.com/user/subfinder-service/backend/internal/worker"
 )
 
 func main() {
@@ -19,11 +22,16 @@ func main() {
 	logger := log.New(os.Stdout, "[SUBFINDER-SERVICE] ", log.LstdFlags)
 	logger.Println("Starting subfinder service...")
 
+	if err := checkSubfinder(logger); err != nil {
+		logger.Fatalf("subfinder not available: %v", err)
+	}
+
 	// Create job queue
 	jobQueue := queue.NewJobQueue()
 
 	// Create worker pool
-	workerCount := getEnvInt("WORKER_COUNT", 5)
+	workerCount := getEnvInt("WORKER_COUNT", runtime.NumCPU())
+	logger.Printf("Using %d worker(s)", workerCount)
 	workerPool := worker.NewWorkerPool(workerCount, jobQueue, logger)
 
 	// Start worker pool
@@ -84,4 +92,19 @@ func parseInt(value string) (int, error) {
 	var result int
 	_, err := fmt.Sscanf(value, "%d", &result)
 	return result, err
+}
+
+// checkSubfinder verifies that the subfinder binary is available and logs its version.
+func checkSubfinder(logger *log.Logger) error {
+	path, err := exec.LookPath("subfinder")
+	if err != nil {
+		return err
+	}
+	cmd := exec.Command(path, "-version")
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		logger.Printf("failed to execute subfinder -version: %v", err)
+	}
+	logger.Printf("Using subfinder at %s version: %s", path, strings.TrimSpace(string(out)))
+	return nil
 }
