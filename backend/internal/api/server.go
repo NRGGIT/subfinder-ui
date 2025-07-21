@@ -9,17 +9,17 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/user/subfinder-service/internal/queue"
-	"github.com/user/subfinder-service/pkg/models"
+	"github.com/user/subfinder-service/backend/internal/queue"
+	"github.com/user/subfinder-service/backend/pkg/models"
 )
 
 // Server represents the API server
 type Server struct {
-	port    string
-	router  *gin.Engine
-	queue   *queue.JobQueue
-	logger  *log.Logger
-	server  *http.Server
+	port   string
+	router *gin.Engine
+	queue  *queue.JobQueue
+	logger *log.Logger
+	server *http.Server
 }
 
 // NewServer creates a new API server
@@ -31,13 +31,13 @@ func NewServer(port string, queue *queue.JobQueue, logger *log.Logger) *Server {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-		
+
 		// Handle preflight requests
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(http.StatusNoContent)
 			return
 		}
-		
+
 		c.Next()
 	})
 
@@ -130,6 +130,8 @@ func (s *Server) handleSubmitJob(c *gin.Context) {
 	}
 	// ExcludeWww is false by default, so no need to set it explicitly
 
+	s.logger.Printf("Received job submission for domain %s", request.Domain)
+
 	// Create a new job
 	job := &models.Job{
 		ID:        uuid.New().String(),
@@ -141,16 +143,19 @@ func (s *Server) handleSubmitJob(c *gin.Context) {
 
 	// Enqueue the job
 	if err := s.queue.Enqueue(job); err != nil {
+		s.logger.Printf("Failed to enqueue job %s: %v", job.ID, err)
 		c.JSON(http.StatusServiceUnavailable, gin.H{
 			"error": fmt.Sprintf("Failed to enqueue job: %v", err),
 		})
 		return
 	}
 
+	s.logger.Printf("Enqueued job %s for domain %s", job.ID, job.Domain)
+
 	// Return the job ID and status
 	c.JSON(http.StatusAccepted, models.JobResponse{
-		JobID:                  job.ID,
-		Status:                 job.Status,
+		JobID:                   job.ID,
+		Status:                  job.Status,
 		EstimatedCompletionTime: job.EstimatedCompletionTime,
 	})
 }
@@ -165,6 +170,8 @@ func (s *Server) handleGetJob(c *gin.Context) {
 		return
 	}
 
+	s.logger.Printf("Retrieving job %s", id)
+
 	// Get the job from the queue
 	job, ok := s.queue.Get(id)
 	if !ok {
@@ -174,6 +181,8 @@ func (s *Server) handleGetJob(c *gin.Context) {
 		return
 	}
 
+	s.logger.Printf("Job %s status %s", id, job.Status)
+
 	// Return the job
 	c.JSON(http.StatusOK, job)
 }
@@ -182,6 +191,8 @@ func (s *Server) handleGetJob(c *gin.Context) {
 func (s *Server) handleGetStatus(c *gin.Context) {
 	// Get all jobs
 	jobs := s.queue.List()
+
+	s.logger.Printf("Reporting status for %d job(s)", len(jobs))
 
 	// Count jobs by status
 	queued := 0
@@ -231,6 +242,8 @@ func (s *Server) handleGetStatus(c *gin.Context) {
 func (s *Server) handleGetAllJobs(c *gin.Context) {
 	// Get all jobs
 	jobs := s.queue.List()
+
+	s.logger.Printf("Listing %d job(s)", len(jobs))
 
 	// Create a simplified job list for the response
 	jobList := make([]gin.H, 0, len(jobs))
