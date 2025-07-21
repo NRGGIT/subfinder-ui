@@ -6,12 +6,13 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"runtime"
 	"syscall"
 	"time"
 
-	"github.com/user/subfinder-service/internal/api"
-	"github.com/user/subfinder-service/internal/queue"
-	"github.com/user/subfinder-service/internal/worker"
+	"github.com/user/subfinder-service/backend/internal/api"
+	"github.com/user/subfinder-service/backend/internal/queue"
+	"github.com/user/subfinder-service/backend/internal/worker"
 )
 
 func main() {
@@ -23,7 +24,8 @@ func main() {
 	jobQueue := queue.NewJobQueue()
 
 	// Create worker pool
-	workerCount := getEnvInt("WORKER_COUNT", 5)
+	workerCount := getEnvInt("WORKER_COUNT", runtime.NumCPU())
+	logger.Printf("Using %d worker(s)", workerCount)
 	workerPool := worker.NewWorkerPool(workerCount, jobQueue, logger)
 
 	// Start worker pool
