@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net"
 	"os/exec"
 	"strings"
 
@@ -40,11 +41,19 @@ func (c *Client) FindSubdomains(ctx context.Context, domain string, config model
 	// 	args = append(args, "-max-depth", fmt.Sprintf("%d", config.MaxDepth))
 	// }
 
-	// Note: -oI flag must be used with -active flag
-	if config.IncludeIPs {
-		args = append(args, "-oI", "-active")
-		// Since we're adding -active, set ExcludeUnresolvable to true
-		config.ExcludeUnresolvable = true
+	includeIPsFromTool := false
+
+	// If ExcludeUnresolvable is set, we must use active mode
+	if config.ExcludeUnresolvable {
+		args = append(args, "-active")
+	}
+
+	// Add IP output only when we are already in active mode. Otherwise we
+	// will resolve IPs manually to avoid long running active scans that may
+	// exceed the job timeout.
+	if config.IncludeIPs && config.ExcludeUnresolvable {
+		args = append(args, "-oI")
+		includeIPsFromTool = true
 	}
 
 	if len(config.Sources) > 0 {
@@ -57,10 +66,6 @@ func (c *Client) FindSubdomains(ctx context.Context, domain string, config model
 
 	if config.IncludeWildcards {
 		args = append(args, "-all")
-	}
-
-	if config.ExcludeUnresolvable {
-		args = append(args, "-active")
 	}
 
 	// Set timeout if specified
@@ -91,7 +96,13 @@ func (c *Client) FindSubdomains(ctx context.Context, domain string, config model
 	}
 
 	// Parse the output into structured data
-	subdomainInfos := parseSubfinderOutput(string(output), config.IncludeIPs)
+	subdomainInfos := parseSubfinderOutput(string(output), includeIPsFromTool)
+
+	// If IPs were not retrieved directly from the tool, resolve them manually
+	if config.IncludeIPs && !includeIPsFromTool {
+		c.logger.Printf("Resolving IPs for %d subdomains", len(subdomainInfos))
+		subdomainInfos = resolveIPs(ctx, subdomainInfos)
+	}
 
 	// Apply depth filtering if maxDepth is set
 	if config.MaxDepth > 0 {
@@ -197,6 +208,19 @@ func filterWwwSubdomains(subdomains []models.SubdomainInfo, excludeWww bool) []m
 	}
 
 	return filtered
+}
+
+// resolveIPs performs DNS lookups for each subdomain and fills the IP field.
+// Failures to resolve are ignored, leaving the IP field empty.
+func resolveIPs(ctx context.Context, infos []models.SubdomainInfo) []models.SubdomainInfo {
+	r := net.Resolver{}
+	for i, info := range infos {
+		ips, err := r.LookupHost(ctx, info.Subdomain)
+		if err == nil && len(ips) > 0 {
+			infos[i].IP = ips[0]
+		}
+	}
+	return infos
 }
 
 // Note: In a production environment, we would use the subfinder library directly
