@@ -9,7 +9,6 @@ import (
 	"os/signal"
 	"runtime"
 	"strings"
-
 	"syscall"
 	"time"
 
@@ -31,8 +30,7 @@ func main() {
 	jobQueue := queue.NewJobQueue()
 
 	// Create worker pool
-	workerCount := getEnvInt("WORKER_COUNT", runtime.NumCPU())
-	logger.Printf("Using %d worker(s)", workerCount)
+	workerCount := getEnvInt("WORKER_COUNT", 5)
 	workerPool := worker.NewWorkerPool(workerCount, jobQueue, logger)
 
 	// Start worker pool

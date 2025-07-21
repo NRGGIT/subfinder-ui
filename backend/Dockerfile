@@ -6,10 +6,10 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy source code
-COPY backend/ ./backend
+COPY . ./
 
 # Build backend binary
-RUN CGO_ENABLED=0 GOOS=linux go build -o /subfinder-service ./backend/cmd/server
+RUN CGO_ENABLED=0 GOOS=linux go build -o /subfinder-service ./cmd/server
 
 # Install subfinder binary compatible with Go 1.21
 RUN go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@v2.6.3
