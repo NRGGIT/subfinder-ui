@@ -6,26 +6,26 @@ import (
 	"sync"
 	"time"
 
-	"github.com/user/subfinder-service/internal/queue"
-	"github.com/user/subfinder-service/internal/subfinder"
-	"github.com/user/subfinder-service/pkg/models"
+	"github.com/user/subfinder-service/backend/internal/queue"
+	"github.com/user/subfinder-service/backend/internal/subfinder"
+	"github.com/user/subfinder-service/backend/pkg/models"
 )
 
 // WorkerPool represents a pool of workers that process jobs from a queue
 type WorkerPool struct {
-	count    int
-	queue    *queue.JobQueue
-	logger   *log.Logger
-	wg       sync.WaitGroup
+	count     int
+	queue     *queue.JobQueue
+	logger    *log.Logger
+	wg        sync.WaitGroup
 	subfinder *subfinder.Client
 }
 
 // NewWorkerPool creates a new worker pool with the specified number of workers
 func NewWorkerPool(count int, queue *queue.JobQueue, logger *log.Logger) *WorkerPool {
 	return &WorkerPool{
-		count:    count,
-		queue:    queue,
-		logger:   logger,
+		count:     count,
+		queue:     queue,
+		logger:    logger,
 		subfinder: subfinder.NewClient(logger),
 	}
 }
@@ -47,7 +47,12 @@ func (p *WorkerPool) Wait() {
 
 // worker processes jobs from the queue
 func (p *WorkerPool) worker(ctx context.Context, id int) {
-	defer p.wg.Done()
+	defer func() {
+		if r := recover(); r != nil {
+			p.logger.Printf("Worker %d recovered from panic: %v", id, r)
+		}
+		p.wg.Done()
+	}()
 
 	p.logger.Printf("Worker %d started", id)
 
@@ -64,6 +69,7 @@ func (p *WorkerPool) worker(ctx context.Context, id int) {
 				time.Sleep(100 * time.Millisecond)
 				continue
 			}
+			p.logger.Printf("Worker %d dequeued job %s", id, jobID)
 
 			// Get the job from the queue
 			job, ok := p.queue.Get(jobID)
@@ -80,7 +86,7 @@ func (p *WorkerPool) worker(ctx context.Context, id int) {
 
 // processJob processes a job
 func (p *WorkerPool) processJob(ctx context.Context, job *models.Job) {
-	p.logger.Printf("Processing job %s for domain %s", job.ID, job.Domain)
+	p.logger.Printf("Processing job %s for domain %s with config %+v", job.ID, job.Domain, job.Config)
 
 	// Update job status to running
 	now := time.Now()
@@ -92,6 +98,7 @@ func (p *WorkerPool) processJob(ctx context.Context, job *models.Job) {
 	estimatedDuration := 30 * time.Second // Default estimation
 	estimatedCompletionTime := now.Add(estimatedDuration)
 	job.EstimatedCompletionTime = &estimatedCompletionTime
+	p.logger.Printf("Job %s estimated completion at %s", job.ID, estimatedCompletionTime.Format(time.RFC3339))
 
 	p.queue.Update(job)
 
@@ -101,6 +108,7 @@ func (p *WorkerPool) processJob(ctx context.Context, job *models.Job) {
 		var cancel context.CancelFunc
 		jobCtx, cancel = context.WithTimeout(ctx, time.Duration(job.Config.Timeout)*time.Second)
 		defer cancel()
+		p.logger.Printf("Job %s timeout set to %ds", job.ID, job.Config.Timeout)
 	}
 
 	// Run subfinder
@@ -115,7 +123,7 @@ func (p *WorkerPool) processJob(ctx context.Context, job *models.Job) {
 	if err != nil {
 		job.Status = models.JobStatusFailed
 		job.Error = err.Error()
-		p.logger.Printf("Job %s failed: %v", job.ID, err)
+		p.logger.Printf("Job %s failed after %s: %v", job.ID, executionTime.String(), err)
 	} else {
 		job.Status = models.JobStatusCompleted
 		job.Subdomains = subdomains
@@ -124,7 +132,7 @@ func (p *WorkerPool) processJob(ctx context.Context, job *models.Job) {
 			ExecutionTime: executionTime.String(),
 			SourcesUsed:   sourcesUsed,
 		}
-		p.logger.Printf("Job %s completed: found %d subdomains", job.ID, len(subdomains))
+		p.logger.Printf("Job %s completed in %s: found %d subdomains", job.ID, executionTime.String(), len(subdomains))
 	}
 
 	p.queue.Update(job)

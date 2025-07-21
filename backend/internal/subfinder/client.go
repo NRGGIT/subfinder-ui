@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/user/subfinder-service/pkg/models"
+	"github.com/user/subfinder-service/backend/pkg/models"
 )
 
 // Client represents a client for the subfinder library
@@ -26,6 +26,11 @@ func NewClient(logger *log.Logger) *Client {
 func (c *Client) FindSubdomains(ctx context.Context, domain string, config models.SubfinderConfig) ([]models.SubdomainInfo, []string, error) {
 	c.logger.Printf("Finding subdomains for domain %s", domain)
 
+	// Ensure the subfinder binary exists
+	if _, err := exec.LookPath("subfinder"); err != nil {
+		return nil, nil, fmt.Errorf("subfinder binary not found: %v", err)
+	}
+
 	// Build the command
 	args := []string{"-d", domain}
 
@@ -34,7 +39,6 @@ func (c *Client) FindSubdomains(ctx context.Context, domain string, config model
 	// if config.MaxDepth > 0 {
 	// 	args = append(args, "-max-depth", fmt.Sprintf("%d", config.MaxDepth))
 	// }
-
 
 	// Note: -oI flag must be used with -active flag
 	if config.IncludeIPs {
@@ -72,11 +76,14 @@ func (c *Client) FindSubdomains(ctx context.Context, domain string, config model
 
 	// Log the command being executed
 	c.logger.Printf("Executing command: subfinder %s", strings.Join(args, " "))
-	
+
 	// Run the command and get the output
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		c.logger.Printf("Command failed with error: %v, output: %s", err, string(output))
+		if ctx.Err() != nil {
+			return nil, nil, fmt.Errorf("subfinder canceled: %v", ctx.Err())
+		}
 		if exitErr, ok := err.(*exec.ExitError); ok {
 			return nil, nil, fmt.Errorf("subfinder failed: %s", string(exitErr.Stderr))
 		}
