@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"os/signal"
 	"runtime"
+	"strings"
 	"syscall"
 	"time"
 
@@ -19,6 +21,10 @@ func main() {
 	// Set up logger
 	logger := log.New(os.Stdout, "[SUBFINDER-SERVICE] ", log.LstdFlags)
 	logger.Println("Starting subfinder service...")
+
+	if err := checkSubfinder(logger); err != nil {
+		logger.Fatalf("subfinder not available: %v", err)
+	}
 
 	// Create job queue
 	jobQueue := queue.NewJobQueue()
@@ -86,4 +92,19 @@ func parseInt(value string) (int, error) {
 	var result int
 	_, err := fmt.Sscanf(value, "%d", &result)
 	return result, err
+}
+
+// checkSubfinder verifies that the subfinder binary is available and logs its version.
+func checkSubfinder(logger *log.Logger) error {
+	path, err := exec.LookPath("subfinder")
+	if err != nil {
+		return err
+	}
+	cmd := exec.Command(path, "-version")
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		logger.Printf("failed to execute subfinder -version: %v", err)
+	}
+	logger.Printf("Using subfinder at %s version: %s", path, strings.TrimSpace(string(out)))
+	return nil
 }
